@@ -331,7 +331,7 @@ class YOLO(object):
             Copied from https://github.com/lanpa/tensorboard-pytorch/
             """
             from PIL import Image
-            print(tensor)
+            #print(tensor)
             height, width, channel = tensor.shape
             image = Image.fromarray(tensor.astype('uint8'))
             import io
@@ -346,7 +346,7 @@ class YOLO(object):
                                 encoded_image_string=image_string)
 
         class TensorBoardImage(keras.callbacks.Callback):
-            def __init__(self, tag, anchors, input_size, max_box_per_image, nb_class, feature_extractor):
+            def __init__(self, tag, anchors, input_size, max_box_per_image, nb_class, feature_extractor, labels):
                 super().__init__() 
                 self.tag = tag
                 self.anchors = anchors
@@ -354,22 +354,26 @@ class YOLO(object):
                 self.max_box_per_image = max_box_per_image
                 self.nb_class = nb_class
                 self.feature_extractor = feature_extractor
+                self.labels = labels
 
             def on_epoch_begin(self, epoch, logs={}):
                 # Load image
                 from PIL import Image
-                image_files = ['/home/cody/Desktop/data_training/car11/0001.jpg',
-                               '/home/cody/Desktop/data_training/car11/0501.jpg',
-                               '/home/cody/Desktop/data_training/car11/1001.jpg',
-                               '/home/cody/Desktop/data_training/car11/1501.jpg',
-                               '/home/cody/Desktop/data_training/car11/1701.jpg',
-                               '/home/cody/Desktop/data_training/car11/1901.jpg',
-                               '/home/cody/Desktop/data_training/car11/2401.jpg']
+                image_files = ['/home/cody/Desktop/data_training/boat2/000002.jpg',
+                               '/home/cody/Desktop/data_training/car11/0023.jpg',
+                               '/home/cody/Desktop/data_training/paraglider1/0233.jpg',
+                               '/home/cody/Desktop/data_training/horseride1/0673.jpg',
+                               '/home/cody/Desktop/data_training/drone3/0003.jpg',
+                               '/home/cody/Desktop/data_training/car8/5398.jpg',
+                               '/home/cody/Desktop/data_training/person15/000124.jpg',
+                               '/home/cody/Desktop/data_training/riding17/720_0003.jpg']
                 #img = cv2.imread('/home/cody/Desktop/reccoon_train/valid_image_folder/raccoon-189.jpg')
                 # Do something to the image
                 images = []
                 for file in image_files:
+                    print(file)
                     img = cv2.imread(file)
+                    print(img)
                     image = cv2.resize(img, (self.input_size, self.input_size))
                     image = self.feature_extractor.normalize(image)
 
@@ -382,10 +386,10 @@ class YOLO(object):
                     boxes.sort(key=lambda x: x.score)
                     if len(boxes) >= 1:
                         boxes = [boxes[-1]]
-                    else:
-                        continue
+                        img = draw_boxes(img, boxes, self.labels)
+                    
 
-                    img = draw_boxes(img, boxes, ['raccoon'])
+                    #img = draw_boxes(img, boxes, ['raccoon'])
                     #img = (255 * skimage.util.random_noise(img)).astype('uint8')
 
                     image = make_image(img)
@@ -397,7 +401,7 @@ class YOLO(object):
 
                 return
 
-        tbi_callback = TensorBoardImage('raccoon', self.anchors, self.input_size, self.max_box_per_image, self.nb_class, self.feature_extractor)
+        tbi_callback = TensorBoardImage('raccoon', self.anchors, self.input_size, self.max_box_per_image, self.nb_class, self.feature_extractor, self.labels)
         ############################################
         # Start the training process
         ############################################        
