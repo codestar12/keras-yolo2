@@ -319,6 +319,7 @@ class YOLO(object):
                                      period=1)
         tensorboard = TensorBoard(log_dir=os.path.expanduser('~/logs/'), 
                                   histogram_freq=0, 
+                                  update_freq=4000,
                                   #write_batch_performance=True,
                                   write_graph=False, 
                                   write_images=True)
@@ -371,9 +372,9 @@ class YOLO(object):
                 # Do something to the image
                 images = []
                 for file in image_files:
-                    print(file)
+                    #print(file)
                     img = cv2.imread(file)
-                    print(img)
+                    #print(img)
                     image = cv2.resize(img, (self.input_size, self.input_size))
                     image = self.feature_extractor.normalize(image)
 
